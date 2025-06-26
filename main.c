@@ -6,8 +6,8 @@
 typedef enum {
     NOOP_TOKEN = 0,
     MAIN_BLOCK_TOKEN,
-    MOVE_TOKEN,         // >> or <<
-    INCREMENT_TOKEN,    // ++ or --
+    MOVE_TOKEN,         // > or <
+    INCREMENT_TOKEN,    // + or -
     INPUT_TOKEN,        // ,
     OUTPUT_TOKEN,       // .
     LOOP_TOKEN          // [
@@ -42,6 +42,7 @@ void tokenFree(Token *token) {
         tokenFree(&token->children[i]);
     }
     free(token->children);
+    token->children = NULL;
 }
 
 // child must be re-init to be used again.
@@ -79,13 +80,6 @@ bool tokenizer(FILE *file, Token *parentToken) {
 
     for (;;) {
         int c = fgetc(file);
-        if (c == EOF) {
-            tokenAppend(parentToken, &current);
-            return true;
-        } else if (c == ']') {
-            tokenAppend(parentToken, &current);
-            return false;
-        }
 
         switch (c)
         {
@@ -139,6 +133,14 @@ bool tokenizer(FILE *file, Token *parentToken) {
                 exit(1);
             }
             break;
+
+        case ']':
+            tokenAppend(parentToken, &current);
+            return false;
+
+        case EOF:
+            tokenAppend(parentToken, &current);
+            return true;
         }
     }
 }
@@ -198,9 +200,6 @@ void dataMove(Data *data, int value) {
 }
 
 void execute(Data *data, Token *token) {
-    Token *test;
-    if (token->type == MAIN_BLOCK_TOKEN) test = &token->children[1];
-
     switch (token->type)
     {
     case NOOP_TOKEN:
