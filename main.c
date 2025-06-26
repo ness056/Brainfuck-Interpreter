@@ -188,7 +188,7 @@ void dataMove(Data *data, int value) {
         }
 
         memset(data->numbers + oldSize, 0, 200);
-    } else if (data->position < 0) {
+    } else if (data->position < 0) {        
         size_t oldSize = data->size;
         unsigned char *oldArray = data->numbers;
 
@@ -196,6 +196,7 @@ void dataMove(Data *data, int value) {
         data->numbers = malloc(sizeof(unsigned char) * data->size);
 
         memcpy(data->numbers + 200, oldArray, oldSize);
+        free(oldArray);
     }
 }
 
